@@ -1,47 +1,31 @@
-#--------------------------------------
-#This macro performs foci tracking in 2D with TrackMate. Each nucleus is cropped as input data. Two output files are generated for each timelapse storing the properties of the tracks (.*track_statistics) and spots (.*spot_statistics)
-#author: Ronald Wong
-#--------------------------------------
+# This script tracks foci in 2D over time.
+# authors: Ronald Wong and Nicola Zilio
 
-#Initialize
 import sys
 from os import listdir
 from os.path import isfile, join
 from loci.plugins import BF
 from loci.plugins.in import ImporterOptions
-from ij import IJ, ImagePlus, ImageStack, WindowManager
+from ij import IJ, ImagePlus, WindowManager
 import fiji.plugin.trackmate.Settings as Settings
 import fiji.plugin.trackmate.Model as Model
 import fiji.plugin.trackmate.SelectionModel as SelectionModel
 import fiji.plugin.trackmate.TrackMate as TrackMate
 import fiji.plugin.trackmate.Logger as Logger
-import fiji.plugin.trackmate.detection.DetectorKeys as DetectorKeys
 from fiji.plugin.trackmate.detection import LogDetectorFactory
-import fiji.plugin.trackmate.detection.DogDetectorFactory as DogDetectorFactory
 import fiji.plugin.trackmate.tracking.sparselap.SparseLAPTrackerFactory as SparseLAPTrackerFactory
 import fiji.plugin.trackmate.tracking.LAPUtils as LAPUtils
 import fiji.plugin.trackmate.visualization.hyperstack.HyperStackDisplayer as HyperStackDisplayer
 import fiji.plugin.trackmate.features.FeatureFilter as FeatureFilter
-import fiji.plugin.trackmate.features.FeatureAnalyzer as FeatureAnalyzer
 import fiji.plugin.trackmate.features.spot.SpotContrastAndSNRAnalyzerFactory as SpotContrastAndSNRAnalyzerFactory
-import fiji.plugin.trackmate.action.ExportStatsToIJAction as ExportStatsToIJAction
-import fiji.plugin.trackmate.io.TmXmlReader as TmXmlReader
-import fiji.plugin.trackmate.action.ExportTracksToXML as ExportTracksToXML
-import fiji.plugin.trackmate.io.TmXmlWriter as TmXmlWriter
-import fiji.plugin.trackmate.features.ModelFeatureUpdater as ModelFeatureUpdater
-import fiji.plugin.trackmate.features.SpotFeatureCalculator as SpotFeatureCalculator
 import fiji.plugin.trackmate.features.spot.SpotContrastAndSNRAnalyzer as SpotContrastAndSNRAnalyzer
 import fiji.plugin.trackmate.features.spot.SpotIntensityAnalyzerFactory as SpotIntensityAnalyzerFactory
 import fiji.plugin.trackmate.features.track.TrackSpeedStatisticsAnalyzer as TrackSpeedStatisticsAnalyzer
-import fiji.plugin.trackmate.util.TMUtils as TMUtils
-
 import fiji.plugin.trackmate.features.track.TrackBranchingAnalyzer as TrackBranchingAnalyzer
 import fiji.plugin.trackmate.features.track.TrackDurationAnalyzer as TrackDurationAnalyzer
 import fiji.plugin.trackmate.features.track.TrackSpotQualityFeatureAnalyzer as TrackSpotQualityFeatureAnalyzer
 
-import fiji.plugin.trackmate.tracking.TrackerKeys as TrackerKeys
-
-#Define path to list of movies
+# Define path to list of movies
 path_to_movies = "C:\\Users\\ronawong\\Desktop\\TEST\\data\\"
 list_of_movies = [f for f in listdir(path_to_movies) if isfile(join(path_to_movies, f))]   
 
@@ -74,11 +58,11 @@ for movie in list_of_movies:
     # Configure detector
     settings.detectorFactory = LogDetectorFactory()
     settings.detectorSettings = {
-	    'DO_SUBPIXEL_LOCALIZATION' : True,
-	    'RADIUS' : 0.25,
-	    'TARGET_CHANNEL' : 1,
-	    'THRESHOLD' : 50.,
-	    'DO_MEDIAN_FILTERING' : True,
+        'DO_SUBPIXEL_LOCALIZATION' : True,
+        'RADIUS' : 0.25,
+        'TARGET_CHANNEL' : 1,
+        'THRESHOLD' : 50.,
+        'DO_MEDIAN_FILTERING' : True,
     } 
        
     # Configure tracker
@@ -92,10 +76,10 @@ for movie in list_of_movies:
     settings.trackerSettings['MERGING_MAX_DISTANCE'] = 0.2
     settings.trackerSettings['SPLITTING_MAX_DISTANCE'] = 0.2
 
-	#use a value of 1-2 work the best in most cases
+	# Use a value of 1-2 work the best in most cases
     settings.trackerSettings['LINKING_FEATURE_PENALTIES'] = {"QUALITY":1.0}
 	
-    # Add the analyzers for some spot features.
+    # Add the analyzers for some spot features
     settings.addSpotAnalyzerFactory(SpotIntensityAnalyzerFactory())
     settings.addSpotAnalyzerFactory(SpotContrastAndSNRAnalyzerFactory())
        
@@ -105,15 +89,14 @@ for movie in list_of_movies:
     settings.addTrackAnalyzer(TrackBranchingAnalyzer())
     settings.addTrackAnalyzer(TrackDurationAnalyzer())
     settings.addTrackAnalyzer(TrackSpotQualityFeatureAnalyzer())
-    
-     
+         
     # Use a value between 30-35 works the best
-    filter1 = FeatureFilter('TRACK_MEAN_QUALITY', 100, True)
-    settings.addTrackFilter(filter1)
+    track_filter = FeatureFilter('TRACK_MEAN_QUALITY', 100, True)
+    settings.addTrackFilter(track_filter)
           
     settings.initialSpotFilterValue = 1
        
-    print(str(settings))
+    # print(str(settings))
           
     #----------------------
     # Instantiate trackmate
@@ -125,7 +108,6 @@ for movie in list_of_movies:
     # Execute all
     #------------
        
-         
     ok = trackmate.checkInput()
     if not ok:
 	
@@ -133,16 +115,13 @@ for movie in list_of_movies:
         
     ok = trackmate.process()
     if not ok:
-		fhandle = open(path_to_movies + movie[:-4] + '_spot_statistics.txt', 'w')
-		fhandle.write("TRACK_ID\tSPOT_ID\tPOSITION_X\tPOSITION_Y\tPOSITION_Z\tFRAME\tQUALITY\tSNR\tMEAN_INSTENSITY\n")
-	
-		ftrackhandle = open(path_to_movies + movie[:-4] + '_track_statistics.txt', 'w')
-		ftrackhandle.write("Label\tNUMBER_SPLITS\tNUMBER_MERGES\tTRACK_DURATION\n")
-		continue
+        fhandle = open(path_to_movies + movie[:-4] + '_spot_statistics.txt', 'w')
+        fhandle.write("TRACK_ID\tSPOT_ID\tPOSITION_X\tPOSITION_Y\tPOSITION_Z\tFRAME\tQUALITY\tSNR\tMEAN_INSTENSITY\n")
+
+        ftrackhandle = open(path_to_movies + movie[:-4] + '_track_statistics.txt', 'w')
+        ftrackhandle.write("Label\tNUMBER_SPLITS\tNUMBER_MERGES\tTRACK_DURATION\n")
+        continue
         #sys.exit(str(trackmate.getErrorMessage()))
-        
-         
-          
           
     #----------------
     # Display results
@@ -155,19 +134,19 @@ for movie in list_of_movies:
     displayer.render()
     displayer.refresh()
 
-    #Create output files
+    # Create output files
     fhandle = open(path_to_movies + movie[:-4] + '_spot_statistics.txt', 'w')
     fhandle.write("TRACK_ID\tSPOT_ID\tPOSITION_X\tPOSITION_Y\tPOSITION_Z\tFRAME\tQUALITY\tSNR\tMEAN_INSTENSITY\n")
 
     ftrackhandle = open(path_to_movies + movie[:-4] + '_track_statistics.txt', 'w')
     ftrackhandle.write("Label\tNUMBER_SPLITS\tNUMBER_MERGES\tTRACK_DURATION\n")
        
-    # The feature model, that stores edge and track features.
+    # The feature model, that stores edge and track features
     fm = model.getFeatureModel()
        
     for id in model.getTrackModel().trackIDs(True):
        
-        # Fetch the track feature from the feature model.
+        # Fetch the track feature from the feature model
         v = fm.getTrackFeature(id, 'TRACK_MEAN_SPEED')
         d = fm.getTrackFeature(id, 'TRACK_DURATION')
         num_splits = fm.getTrackFeature(id, TrackBranchingAnalyzer.NUMBER_SPLITS)
@@ -177,9 +156,11 @@ for movie in list_of_movies:
         ftrackhandle.write(str(id) + "\t" + str(int(num_splits)) + "\t" + str(int(num_merges)) + "\t" + str(d) + "\n")
            
         track = model.getTrackModel().trackSpots(id)
+        
         for spot in track:
             sid = spot.ID()
-            # Fetch spot features directly from spot. 
+            
+            # Fetch spot features directly from spot
             x=spot.getFeature('POSITION_X')
             y=spot.getFeature('POSITION_Y')
             z=spot.getFeature('POSITION_Z')
@@ -192,4 +173,3 @@ for movie in list_of_movies:
     fhandle.close()
     ftrackhandle.close()
     imp.close()
-    

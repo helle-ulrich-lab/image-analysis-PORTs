@@ -1,7 +1,9 @@
 //--------------------------------------
-//This macro performs foci counting and zoning assay. 
-//For zoning assay, an ellipsoid is fitted into each nucleus. Three layers with equal volumes are then created. Positions of foci with respect to the zones are tested.
-//author: Ronald Wong and Mária Hanulová
+// This macro counts foci and determines the location of each focus
+// with respect to three nuclear zones of equal volume. It requires a
+// fluorescent channel that marks the nuclear volume and a target
+// fluorescent protein.
+// author: Ronald Wong and Mária Hanulová
 //--------------------------------------
 
 //Initialize

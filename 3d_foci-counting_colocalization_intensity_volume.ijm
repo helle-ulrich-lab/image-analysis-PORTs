@@ -1,7 +1,14 @@
 //--------------------------------------
-//This macro performs object-based colocalization, foci intensity quantification and counting. Foci are segmented with an absolute threshold.
-//author: Ronald Wong
-//Acknowledgement: Fabrice P Cordelières. Part of the code is taken from EMBO Bioimage Data Analysis course 2017
+// This script performs an object-based colocalization analysis for two
+// target proteins imaged in two different channels. It determines the
+// number of foci per nucleus for both targets, their intensities and
+// volumes as well as the degree of overlap with the other target. The
+// background fluorescence of one of the targets is used to create
+// nuclear masks; if this is not possible, a fluorescent nuclear marker
+// should be introduced by other means.
+// author: Ronald Wong
+// Acknowledgement: Fabrice P Cordelières. Part of the code is taken 
+// from EMBO Bioimage Data Analysis course 2017
 //-------------------------------------
 
 //Initialize

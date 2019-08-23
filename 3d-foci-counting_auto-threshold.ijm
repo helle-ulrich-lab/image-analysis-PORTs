@@ -1,6 +1,10 @@
 //--------------------------------------
-//This macro performs foci counting per cell. It uses DAPI to create a nuclear mask and performs segmentation of foci in 3D
-//author: Ronald Wong
+// This script determines the number of foci of a fluorescent protein
+// in individual nuclei. It performs foci segmentation in 3D to avoid
+// fusion of foci in lateral proximity, but in different planes upon
+// Z projection. It analyzes images acquired with three channels, but
+// uses only the two fluorescent channels for downstream analysis.
+// author: Ronald Wong
 //--------------------------------------
 
 //Initialize
