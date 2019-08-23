@@ -1,5 +1,4 @@
-**Characterization of nuclear foci in *S. cerevisiae* by fluorescence
-microscopy**
+# Characterization of nuclear foci in *S. cerevisiae* by fluorescence microscopy
 
 This repository contains a set of image analysis scripts used in the
 study “Processing of DNA polymerase-blocking lesions during genome
