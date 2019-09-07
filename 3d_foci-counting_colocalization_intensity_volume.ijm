@@ -57,11 +57,14 @@ for(k=0;k<nFiles;k++) {  //loop over all files in the directory
 		p=indexOf(fileList[k],"_", o+1);
 		q=indexOf(fileList[k],"_", p+1);
 		r=indexOf(fileList[k],"_", q+1);
-		
-		strain=substring(fileList[k],m+1,o);
-		treatment=substring(fileList[k],o+1,p);
-		timepoint=substring(fileList[k],p+1,q);
-		point=substring(fileList[k],q+1,r);
+		s=indexOf(fileList[k],"_", r+1);
+		t=indexOf(fileList[k],"_", s+1);
+
+		date=substring(fileList[k],m+1,o);
+		strain=substring(fileList[k],o+1,p);
+		treatment=substring(fileList[k],p+1,q);
+		timepoint=substring(fileList[k],q+1,r);
+		point=substring(fileList[k],s+1,t);
 		point_num=parseFloat(point);
 		replicate=point_num%3+1;
 		
@@ -72,7 +75,7 @@ for(k=0;k<nFiles;k++) {  //loop over all files in the directory
 		
 		//nuclear segmentation based on the nuclear signals from a nuclear protein
 		selectWindow(ori);	
-		run("Duplicate...", "title=[nucleus count] duplicate channels=1");
+		run("Duplicate...", "title=[nucleus count] duplicate channels=2");
 		run("Z Project...", "projection=[Average Intensity]");
 		rename("SUM_nucleus count");
 		run("Gaussian Blur...", "sigma=3");
@@ -145,26 +148,25 @@ for(k=0;k<nFiles;k++) {  //loop over all files in the directory
 			commonVolume1=getValues("Tagged_map_Channel1", "Common_volumes");
 			objectsInt1=getIntensity("Tagged_map_Channel1", "Channel1");
 					
-			generateOutputs(objectsVolume1, commonVolume1, objectsInt1, BgInt1, "Tagged_map_Channel1");
+			generateOutputs(objectsVolume1, commonVolume1, objectsInt1, "Tagged_map_Channel1");
 			if (nResults>0) {				
 				String.copyResults();
 				print("[Volume_Int_Colocalization_Channel1_combined]",String.paste);
 				run("Clear Results");
-			} else	print("[Volume_Int_Colocalization_Channel1_combined]","NaN\tNaN\tNaN\tNaN\tNaN\tNaN\tNaN\tNaN\t"+strain+"\t"+treatment+"\t"+point+"\t"+replicate+"\t"+n+"\t"+timepoint);
+			} else	print("[Volume_Int_Colocalization_Channel1_combined]","NaN\tNaN\tNaN\tNaN\tNaN\tNaN\tNaN\t"+strain+"\t"+treatment+"\t"+point+"\t"+replicate+"\t"+n+"\t"+timepoint);
 			selectWindow("Coloc_Map");
 			rename("Volume_Colocalization_Channel1");
 									
 			objectsVolume2=getValues("Tagged_map_Channel2", "Mask_Channel2");
 			commonVolume2=getValues("Tagged_map_Channel2", "Common_volumes");
 			objectsInt2=getIntensity("Tagged_map_Channel2", "Channel2");
-			BgInt2=getBackgroundInt("Tagged_map_Channel2", "Channel1", "Channel2");
-						
-			generateOutputs(objectsVolume2, commonVolume2, objectsInt2, BgInt2, "Tagged_map_Channel2");
+									
+			generateOutputs(objectsVolume2, commonVolume2, objectsInt2, "Tagged_map_Channel2");
 			if (nResults>0) {					
 				String.copyResults();
 				print("[Volume_Int_Colocalization_Channel2_combined]",String.paste);
 				run("Clear Results");
-			} else	print("[Volume_Int_Colocalization_Channel2_combined]","NaN\tNaN\tNaN\tNaN\tNaN\tNaN\tNaN\tNaN\t"+strain+"\t"+treatment+"\t"+point+"\t"+replicate+"\t"+n+"\t"+timepoint);
+			} else	print("[Volume_Int_Colocalization_Channel2_combined]","NaN\tNaN\tNaN\tNaN\tNaN\tNaN\tNaN\t"+strain+"\t"+treatment+"\t"+point+"\t"+replicate+"\t"+n+"\t"+timepoint);
 			selectWindow("Coloc_Map");
 			rename("Volume_Colocalization_Channel2");
 				
@@ -352,7 +354,7 @@ function getIntensity(objectsMap, imageToQuantify){
 }
 
 //Generates two types of outputs: a results table and 2 co-localisation maps
-function generateOutputs(objectsMeasures, commonMeasures, ObjectInt, BgInt, objectsMap){
+function generateOutputs(objectsMeasures, commonMeasures, ObjectInt, objectsMap){
 	//Empties any pre-existing results table
 	run("Clear Results");
 
@@ -361,13 +363,12 @@ function generateOutputs(objectsMeasures, commonMeasures, ObjectInt, BgInt, obje
 	run("Select None"); //Needed to remove any ROI from the image
 	run("Duplicate...", "title=Coloc_Map duplicate");
 	run("32-bit"); //Needed to accomodate decimal intensities
-	backgroundMeanInt=BgInt/NuclearVol;
+	
 	for(i=0; i<objectsMeasures.length; i++){
 		//Calculate the ratio
 		ratio=commonMeasures[i]/objectsMeasures[i];
 		ObjectMeanInt=ObjectInt[i]/objectsMeasures[i];
-		SpecificObjInt=ObjectMeanInt-backgroundMeanInt;
-
+		
 		//Fill the results table with data
 		setResult("Label", nResults, "Object_"+(i+1));
 		setResult("Full object", nResults-1, objectsMeasures[i]);
