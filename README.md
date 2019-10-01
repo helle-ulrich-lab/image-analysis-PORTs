@@ -3,7 +3,7 @@
 This repository contains a set of image analysis scripts used in the
 study “Processing of DNA polymerase-blocking lesions during genome
 replication is spatially and temporally segregated from replication
-forks” by Wong *et al.* (currently under revision at *Molecular Cell*). In
+forks” by Wong *et al.* (in press on Oct 10, 2019 at *Molecular Cell*). In
 this study, all image analyses were automated using unbiased, customized
 scripts written in ImageJ macro and Jython languages with ImageJ FIJI
 software (<https://fiji.sc/>). The following analyses were used:
