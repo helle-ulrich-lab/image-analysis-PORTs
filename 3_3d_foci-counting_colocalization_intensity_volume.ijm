@@ -123,7 +123,7 @@ for(k=0;k<nFiles;k++) {  //loop over all files in the directory
 			setThreshold(threshold_Channel2, 70000);
 			run("Convert to Mask", "method=Default background=Dark black");
 			run("3D OC Options", "  dots_size=5 font_size=10 redirect_to=none");
-			run("3D Objects Counter", "threshold=0 slice=1 min.="+minsize_Channel2+" max.=15 objects");
+			run("3D Objects Counter", "threshold=0 slice=1 min.="+minsize_Channel2+" max.=100000 objects");
 			rename("Tagged_map_Channel2");
 		
 			selectWindow("Tagged_map_Channel1");
