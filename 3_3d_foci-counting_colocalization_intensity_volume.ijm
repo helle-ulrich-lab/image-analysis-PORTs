@@ -18,14 +18,10 @@ run("Colors...", "foreground=white background=black selection=magenta");
 roiManager("reset");
 
 //Create tables to write data
-run("New... ", "name=Volume_Int_Colocalization_Channel1_combined type=Table");
-print("[Volume_Int_Colocalization_Channel1_combined]","\\Headings: \tLabel\tFull object\tCommon part\tRatio\tObjectInt\tObjectMeanInt\tstrain\ttreatment\tpoint\treplicate\tnucleus\ttime frame");
-run("New... ", "name=Volume_Int_Colocalization_Channel2_combined type=Table");
-print("[Volume_Int_Colocalization_Channel2_combined]","\\Headings: \tLabel\tFull object\tCommon part\tRatio\tObjectInt\tObjectMeanInt\tstrain\ttreatment\tpoint\treplicate\tnucleus\ttime frame");
-run("New... ", "name=Number_of_foci_Channel1_combined type=Table");
-print("[Number_of_foci_Channel1_combined]","\\Headings: \tFoci count\tstrain\ttreatment\tpoint\treplicate\tnucleus\ttime frame");
-run("New... ", "name=Number_of_foci_Channel2_combined type=Table");
-print("[Number_of_foci_Channel2_combined]","\\Headings: \tFoci count\tstrain\ttreatment\tpoint\treplicate\tnucleus\ttime frame");
+Table.create("Volume_Int_Colocalization_Channel1_combined");
+Table.create("Volume_Int_Colocalization_Channel2_combined");
+Table.create("Number_of_foci_Channel1_combined");
+Table.create("Number_of_foci_Channel2_combined");
 
 //create a dialog for user to input paramters
 Dialog.create("Colocalization");
@@ -60,11 +56,11 @@ for(k=0;k<nFiles;k++) {  //loop over all files in the directory
 		s=indexOf(fileList[k],"_", r+1);
 		t=indexOf(fileList[k],"_", s+1);
 
-		date=substring(fileList[k],m+1,o);
-		strain=substring(fileList[k],o+1,p);
-		treatment=substring(fileList[k],p+1,q);
-		timepoint=substring(fileList[k],q+1,r);
-		point=substring(fileList[k],s+1,t);
+		//date=substring(fileList[k],m+1,o);
+		strain=substring(fileList[k],m+1,o);
+		treatment=substring(fileList[k],o+1,p);
+		timepoint=substring(fileList[k],p+1,q);
+		point=substring(fileList[k],q+1,r);
 		point_num=parseFloat(point);
 		replicate=point_num%3+1;
 		
@@ -147,40 +143,32 @@ for(k=0;k<nFiles;k++) {  //loop over all files in the directory
 			objectsVolume1=getValues("Tagged_map_Channel1", "Mask_Channel1");
 			commonVolume1=getValues("Tagged_map_Channel1", "Common_volumes");
 			objectsInt1=getIntensity("Tagged_map_Channel1", "Channel1");
-					
+
+			IJ.renameResults("Volume_Int_Colocalization_Channel1_combined", "Results");
 			generateOutputs(objectsVolume1, commonVolume1, objectsInt1, "Tagged_map_Channel1");
-			if (nResults>0) {				
-				String.copyResults();
-				print("[Volume_Int_Colocalization_Channel1_combined]",String.paste);
-				run("Clear Results");
-			} else	print("[Volume_Int_Colocalization_Channel1_combined]","NaN\tNaN\tNaN\tNaN\tNaN\tNaN\tNaN\t"+strain+"\t"+treatment+"\t"+point+"\t"+replicate+"\t"+n+"\t"+timepoint);
+			IJ.renameResults("Results","Volume_Int_Colocalization_Channel1_combined");
 			selectWindow("Coloc_Map");
 			rename("Volume_Colocalization_Channel1");
 									
 			objectsVolume2=getValues("Tagged_map_Channel2", "Mask_Channel2");
 			commonVolume2=getValues("Tagged_map_Channel2", "Common_volumes");
 			objectsInt2=getIntensity("Tagged_map_Channel2", "Channel2");
-									
+
+			IJ.renameResults("Volume_Int_Colocalization_Channel2_combined", "Results");
 			generateOutputs(objectsVolume2, commonVolume2, objectsInt2, "Tagged_map_Channel2");
-			if (nResults>0) {					
-				String.copyResults();
-				print("[Volume_Int_Colocalization_Channel2_combined]",String.paste);
-				run("Clear Results");
-			} else	print("[Volume_Int_Colocalization_Channel2_combined]","NaN\tNaN\tNaN\tNaN\tNaN\tNaN\tNaN\t"+strain+"\t"+treatment+"\t"+point+"\t"+replicate+"\t"+n+"\t"+timepoint);
+			IJ.renameResults("Results","Volume_Int_Colocalization_Channel2_combined");
 			selectWindow("Coloc_Map");
 			rename("Volume_Colocalization_Channel2");
 				
 			//Get number of foci
+			IJ.renameResults("Number_of_foci_Channel1_combined","Results");
 			getFociCount("Tagged_map_Channel1");
-			String.copyResults();
-			print("[Number_of_foci_Channel1_combined]",String.paste);
-			run("Clear Results");
-
+			IJ.renameResults("Results","Number_of_foci_Channel1_combined");
+			
+			IJ.renameResults("Number_of_foci_Channel2_combined","Results");
 			getFociCount("Tagged_map_Channel2");
-			String.copyResults();
-			print("[Number_of_foci_Channel2_combined]",String.paste);
-			run("Clear Results");
-
+			IJ.renameResults("Results","Number_of_foci_Channel2_combined");
+			
 			//close windows to prepare for next analysis
 			selectWindow("Channel1");
 			close();
@@ -218,7 +206,7 @@ print("all finished");
 
 function getFociCount(objectsMap){
 	//Empties any pre-existing results table
-	run("Clear Results");
+	//run("Clear Results");
 	
 	//Activate objects’ map
 	selectWindow(objectsMap);
@@ -229,13 +217,13 @@ function getFociCount(objectsMap){
 	selectWindow("MAX_"+objectsMap);
 	close();
 	
-	setResult("Foci Count", 0, nObjects);
-	setResult("strain", 0, strain);
-	setResult("treatment", 0, treatment);
-	setResult("point", 0, point);
-	setResult("replicate", 0, replicate);
-	setResult("nucleus", 0, n);
-	setResult("time frame", 0, timepoint);
+	setResult("Foci Count", nResults, nObjects);
+	setResult("strain", nResults-1, strain);
+	setResult("treatment", nResults-1, treatment);
+	setResult("point", nResults-1, point);
+	setResult("replicate", nResults-1, replicate);
+	setResult("nucleus", nResults-1, n);
+	setResult("time frame", nResults-1, timepoint);
 	updateResults();	
 }
 
@@ -356,14 +344,14 @@ function getIntensity(objectsMap, imageToQuantify){
 //Generates two types of outputs: a results table and 2 co-localisation maps
 function generateOutputs(objectsMeasures, commonMeasures, ObjectInt, objectsMap){
 	//Empties any pre-existing results table
-	run("Clear Results");
+	//run("Clear Results");
 
 	//Duplicate the objects map
 	selectWindow(objectsMap);
 	run("Select None"); //Needed to remove any ROI from the image
 	run("Duplicate...", "title=Coloc_Map duplicate");
 	run("32-bit"); //Needed to accomodate decimal intensities
-	
+	if (objectsMeasures.length>0){
 	for(i=0; i<objectsMeasures.length; i++){
 		//Calculate the ratio
 		ratio=commonMeasures[i]/objectsMeasures[i];
@@ -388,4 +376,19 @@ function generateOutputs(objectsMeasures, commonMeasures, ObjectInt, objectsMap)
 		run("Macro...", "code=[if(v=="+(i+1)+") v="+ratio+"] stack");
 	}
 	resetMinAndMax();
+}else{
+		setResult("Label", nResults, "NaN");
+		setResult("Full object", nResults-1, "NaN");
+		setResult("Common part", nResults-1, "NaN");
+		setResult("Ratio", nResults-1, "NaN");
+		setResult("ObjectInt", nResults-1, "NaN");
+		setResult("ObjectMeanInt", nResults-1, "NaN");
+		setResult("strain", nResults-1, strain);
+		setResult("treatment", nResults-1, treatment);
+		setResult("point", nResults-1, point);
+		setResult("replicate", nResults-1, replicate);
+		setResult("nucleus", nResults-1, n);
+		setResult("time frame", nResults-1, timepoint);
+		updateResults();	
+		}
 }
