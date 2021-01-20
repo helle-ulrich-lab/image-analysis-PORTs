@@ -151,9 +151,9 @@ for(k=0;k<nFiles;k++) {  //loop over all files in the directory
 				selectWindow("focus");
 				run("3D Objects Counter", "threshold=0 slice=1 min.="+minsize_foci+" max.=100000 exclude_objects_on_edges objects");
 				rename("ObjectMap");
+				IJ.renameResults("Number_of_foci_combined", "Results");
 				getFociCount("ObjectMap");
-				String.copyResults();
-				print("[Number_of_foci_combined]",String.paste);
+				IJ.renameResults("Results","Number_of_foci_combined");
 				close("ObjectMap");
 				run("Clear Results");
 
@@ -344,12 +344,12 @@ function getFociCount(objectsMap){
 	selectWindow("MAX_"+objectsMap);
 	close();
 	
-	setResult("Foci Count", 0, nObjects);
-	setResult("strain", 0, strain);
-	setResult("treatment", 0, treatment);
-	setResult("point", 0, point);
-	setResult("replicate", 0, replicate);
-	setResult("nucleus", 0, i);
-	setResult("time frame", 0, timepoint);
+	setResult("Foci Count", nResults, nObjects);
+	setResult("strain", nResults-1, strain);
+	setResult("treatment", nResults-1, treatment);
+	setResult("point", nResults-1, point);
+	setResult("replicate", nResults-1, replicate);
+	setResult("nucleus", nResults-1, i);
+	setResult("time frame", nResults-1, timepoint);
 	updateResults();	
 }
